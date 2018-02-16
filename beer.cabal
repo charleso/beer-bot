@@ -1,0 +1,80 @@
+name: beer
+version: 0.0.1
+license: BSD3
+author: Charles O'Farrell <charleso@charleso.org>
+maintainer: Charles O'Farrell <charleso@charleso.org>
+copyright: (c) 2018 Charles O'Farrell
+cabal-version: >= 1.24
+build-type: Custom
+description:
+  Slack beer bot.
+
+library
+  default-language: Haskell2010
+
+  build-depends:
+      base >= 3 && < 5
+    , aeson == 1.2.*
+    , bytestring == 0.10.*
+    , containers >= 0.5 && < 0.7
+    , exceptions == 0.8.*
+    , http-client == 0.5.*
+    , lens == 4.16.*
+    , lens-aeson == 1.0.*
+    , linklater == 4.0.*
+    , text == 1.2.*
+    , transformers == 0.5.*
+    , wreq == 0.5.*
+    , Cabal == 1.24.*
+
+  ghc-options:
+    -Wall
+
+  hs-source-dirs:
+    src
+
+  exposed-modules:
+    Beer
+    Beer.EitherT
+    Beer.Prelude
+
+
+executable beer-bot
+  default-language: Haskell2010
+
+  ghc-options:
+                    -Wall -threaded -O2
+                    -rtsopts -with-rtsopts "-T -N"
+
+  hs-source-dirs:
+                    gen
+
+  main-is:
+                    ../main/beer-bot.hs
+
+  build-depends:
+      base
+    , nest == 0.*
+    , linklater == 4.0.*
+    , text
+    , transformers
+    , beer
+    , warp == 3.*
+
+test-suite test
+  default-language: Haskell2010
+  type: exitcode-stdio-1.0
+  main-is: test.hs
+  hs-source-dirs: test
+  build-depends:
+      base >= 3 && < 5
+    , bytestring
+    , containers
+    , hedgehog == 0.5.*
+    , text
+    , beer
+
+  ghc-options:
+    -Wall
+    -threaded
+    -O2
