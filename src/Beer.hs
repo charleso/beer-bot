@@ -6,6 +6,7 @@ module Beer (
 
 import           Beer.Prelude
 
+import qualified Control.Concurrent as Concurrent
 import           Control.Monad.Trans.Class (lift)
 import qualified Control.Monad.Catch as E
 import           Control.Lens ((^..), (^?!), to, view)
@@ -44,9 +45,11 @@ newtype VenueId =
 
 -----------------
 
-beer :: Linklater.Config -> Linklater.Command -> IO ()
-beer config (Linklater.Command _name _user channel msg) =
-  case msg of
+beer :: Linklater.Config -> Linklater.Command -> IO Linklater.Message
+beer config (Linklater.Command _name _user channel msg) = do
+  -- Yuck. Ideally we should just return the message but Untapped can take
+  -- longer than 3 seconds which is slack's hard timeout on the initial response
+  (_ :: Concurrent.ThreadId) <- Concurrent.forkIO $ case msg of
     Nothing ->
       pure ()
     Just msg' -> do
@@ -62,12 +65,15 @@ beer config (Linklater.Command _name _user channel msg) =
           IO.print err
         Right () -> do
           pure ()
+  -- Return immediately to get the original command to print
+  pure $
+    beerMsgStub channel ""
 
 -----------------
 
 beerMsgStub :: Linklater.Channel -> Text -> Linklater.Message
-beerMsgStub =
-  Linklater.SimpleMessage (Linklater.EmojiIcon ":beer:") "beer"
+beerMsgStub c =
+  Linklater.SimpleMessage (Linklater.EmojiIcon ":beer:") "beer" c Linklater.InChannel
 
 beerMsg :: Beers -> Text
 beerMsg (Beers venueId beers) =

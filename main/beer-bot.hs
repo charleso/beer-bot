@@ -18,4 +18,4 @@ main = do
   port <- Nest.force $ Nest.numeric "PORT" `Nest.withDefault` 8888
   hook <- Nest.force $ Nest.string "HOOK"
   IO.putStrLn ("[beer-bot] listening on port: " <> show port)
-  Warp.run port (Linklater.slashSimple $ \c -> Beer.beer (Linklater.Config hook) c >> pure "")
+  Warp.run port (Linklater.slashMessage $ \c -> Beer.beer (Linklater.Config hook) c)
